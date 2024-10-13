@@ -11,39 +11,44 @@ const { Review } = require('./models')
 app.use(cors())
 app.use(express.json())
 
-//show route - reviews by score order, descending
+//index of parent data, per assignment instructions (movies)
+app.get('/', async (req, res) => {
+  const movies = await Movie.find({})
+  res.json(movies)
+})
+
+//reviews by score sorted in descending order
 app.get('/reviews/highest', async (req, res)=> { 
-    const reviews = await Review.find().sort({score: -1})
-    res.json(reviews)
+  const reviews = await Review.find().sort({score: -1})
+  res.json(reviews)
 })
 
-//show route - reviews by score order, ascending
+//reviews by score sorted in ascending order
 app.get('/reviews/lowest', async (req, res)=> { 
-    const reviews = await Review.find().sort({score: +1})
-    res.json(reviews)
+  const reviews = await Review.find().sort({score: +1})
+  res.json(reviews)
 })
 
-// index route - actors
+//index of movies with actors + reviews populated
+app.get('/movies', async (req, res) => {
+  const movies = await Movie.find({})
+  .populate('starringActors')
+  .populate('reviews')
+})
+
+//index of all actors
 app.get('/actors', async (req, res) => {
     const actors = await Actor.find({})
     res.json(actors)
 })
 
-// index route - reviews
+//index of all reviews
 app.get('/reviews', async (req, res) => {
     const reviews = await Review.find({})
     res.json(reviews)
 })
 
-// index route - movies
-app.get('/', async (req, res) => {
-    const movies = await Movie.find({})
-        .populate('starringActors')
-        .populate('reviews')
-    res.json(movies)
-})
-
-//show route - actor
+//find actor by id
 app.get('/actors/:id', async (req, res) => {
     try {
       const { id } = req.params
@@ -56,7 +61,7 @@ app.get('/actors/:id', async (req, res) => {
     }
 })
 
-//show route - review
+//find review by id
 app.get('/reviews/:id', async (req, res) => {
     try {
       const { id } = req.params
@@ -69,8 +74,8 @@ app.get('/reviews/:id', async (req, res) => {
     }
 })
 
-//show route - movie
-app.get('/:id', async (req, res) => {
+//find movie by id
+app.get('/movies/:id', async (req, res) => {
     try {
       const { id } = req.params
       const movies = await Movie.findById(id)
@@ -81,8 +86,6 @@ app.get('/:id', async (req, res) => {
       res.send('movie not found!!!')
     }
 })
-
-
 
 app.listen(PORT, () => {
   console.log(`Express server listening on port ${PORT}`)
